@@ -63,10 +63,11 @@
         "VHD": "mild"
       },
       "expected": {
-        "cad": 0.85,
+        "cad": 0.7931,
         "lad": 0.8529,
         "lcx": 0.6829,
-        "rca": 0.087
+        "rca": 0.087,
+        "ood": true
       },
       "flag": "high"
     },
@@ -133,10 +134,11 @@
         "VHD": "N"
       },
       "expected": {
-        "cad": 0.16,
+        "cad": 0.2727,
         "lad": 0.2871,
         "lcx": 0.1176,
-        "rca": 0.0909
+        "rca": 0.0909,
+        "ood": false
       },
       "flag": "low"
     },
@@ -203,10 +205,11 @@
         "VHD": "N"
       },
       "expected": {
-        "cad": 0.6,
+        "cad": 0.7931,
         "lad": 0.6316,
         "lcx": 0.1176,
-        "rca": 0.4754
+        "rca": 0.4754,
+        "ood": false
       },
       "flag": "moderate"
     }

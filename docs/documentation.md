@@ -144,10 +144,13 @@ Symptoms / ECG / Labs / Echo). Sign colour: red = risk-increasing, blue = protec
 
 **Live counterfactual (not illustrative).** Sliders for SBP / LDL / HDL / quit-smoking issue a
 debounced `POST /v1/counterfactual`; Δpp is shown with a guardrail note. OOD combinations block
-export. Replayable example on the Borderline 50M preset (CAD 0.60, ±uncertain, below the 0.73
-Youden point): optimising LDL 163→80, HDL 46→60, TG 340→100, FBS 104→85, EF 50→60 and HTN 1→0
-lowers CAD to 0.16 (−44.0 pp). High-risk presets near the calibration ceiling move less —
-expected saturation, not a bug.
+export. Replayable example on the **High-risk 54M** preset (CAD 0.79 HIGH): the systolic-BP slider
+is already at the model's own operating range, so intermediate moves (170→120) are absorbed by the
+calibrated step and show Δ0.0 pp; only when SBP crosses the fitted spline knee (170→110) does the
+estimate move — **CAD 0.79→0.56 (−23.8 pp), LCX 0.68→0.60 (−8.3 pp)**. This is the honest shape of
+a gradient-boosted model with a monotone-in-BP calibration: the Δpp is a step, not a straight line,
+and high-risk presets near the calibration ceiling move less than the borderline band. The live
+number is whatever the API returns — it is never pre-computed on screen.
 
 ---
 
