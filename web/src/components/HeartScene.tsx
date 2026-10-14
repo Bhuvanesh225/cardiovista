@@ -8,8 +8,10 @@ import type { HeadName, Probs } from "../lib/types";
 import { Fallback2D } from "./Fallback2D";
 
 const GLB_URL = "/heart_bp3d.glb";
-const MODEL_SIZE = 3.1; // normalised largest dimension, world units
-const CAMERA_DIST = 4.4;
+// Fill ~75% of the viewport height:
+//   visible = 2 * CAMERA_DIST * tan(fov/2) ; MODEL_SIZE = 0.75 * visible
+const CAMERA_DIST = 4.1;
+const MODEL_SIZE = 2.25;
 
 type VesselHead = Exclude<HeadName, "cad">;
 
@@ -50,7 +52,11 @@ function computeLayout(nodes: Record<string, THREE.Mesh>) {
     const g = nodes[v.meshName]?.geometry;
     if (!g) continue;
     g.computeBoundingBox();
-    labelDots[v.head] = (g.boundingBox as THREE.Box3).getCenter(new THREE.Vector3());
+    const bb = g.boundingBox as THREE.Box3;
+    // anchor each marker at a distinct anatomical end so neighbours separate
+    if (v.head === "lad") labelDots[v.head] = new THREE.Vector3((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2);
+    else if (v.head === "lcx") labelDots[v.head] = new THREE.Vector3(bb.max.x, (bb.min.y + bb.max.y) / 2, (bb.min.z + bb.max.z) / 2);
+    else labelDots[v.head] = bb.getCenter(new THREE.Vector3());
   }
   return { scale, position, labelDots };
 }
@@ -125,10 +131,13 @@ function Model({ probs, selected, isolate, xray, autoRotate, orientation, onSele
               onClick={() => onSelectVessel(v.head)}
               title={`${v.full}${p !== null ? ` — ${(p * 100).toFixed(0)}%` : ""}`}
               aria-label={`Select ${v.full}`}
+              style={{
+                borderColor: selected === v.head ? "#3D7DFF" : c,
+                transform: `translate(${v.screenOffset[0]}px, ${v.screenOffset[1]}px)`,
+              }}
               className={`grid h-6 w-6 place-items-center rounded-full border-2 text-[10px] font-extrabold shadow-lg backdrop-blur transition-transform hover:scale-125 ${
-                selected === v.head ? "border-primary bg-primary/50 text-white" : "border-black/60 bg-black/70 text-white"
+                selected === v.head ? "bg-primary/50 text-white" : "bg-black/70 text-white"
               }`}
-              style={{ borderColor: selected === v.head ? "#3D7DFF" : c }}
             >
               {i + 1}
             </button>

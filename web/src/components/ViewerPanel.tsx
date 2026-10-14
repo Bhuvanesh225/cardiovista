@@ -18,7 +18,7 @@ export function ViewerPanel() {
   return (
     <section
       aria-label="Anatomical risk map"
-      className="flex min-h-0 flex-col rounded-2xl border border-line bg-surface shadow-panel"
+      className="flex min-h-0 flex-col rounded-2xl border border-line bg-surface shadow-panel lg:h-full"
     >
       <header className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-3">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate-200">

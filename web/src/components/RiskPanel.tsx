@@ -15,7 +15,7 @@ export function RiskPanel() {
   return (
     <section
       aria-label="Risk and explainability"
-      className="flex min-h-0 flex-col gap-3 overflow-y-auto rounded-2xl border border-line bg-surface p-4 shadow-panel"
+      className="flex min-h-0 flex-col gap-3 rounded-2xl border border-line bg-surface p-4 shadow-panel lg:h-full lg:overflow-y-auto"
     >
       <div className="flex items-center justify-between">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate-200">

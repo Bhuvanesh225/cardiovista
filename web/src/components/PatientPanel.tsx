@@ -35,7 +35,7 @@ export function PatientPanel() {
   };
 
   return (
-    <section aria-label="Patient data" className="flex min-h-0 flex-col rounded-2xl border border-line bg-surface shadow-panel">
+    <section aria-label="Patient data" className="flex min-h-0 flex-col rounded-2xl border border-line bg-surface shadow-panel lg:h-full">
       <header className="flex items-center justify-between border-b border-line px-4 py-3">
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate-200">Patient data</h2>
         <button

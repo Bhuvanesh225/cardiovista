@@ -85,10 +85,10 @@ seeds = 25 fits/head, with **nested calibration** and 2000× bootstrap AUC CIs.
 
 | Head | Cal | ROC-AUC [95% CI] | PR-AUC | Brier | ECE | Youden | Sens@J | CV mean±SD |
 |---|---|---|---|---|---|---|---|---|
-| CAD | isotonic | 0.91 [0.87–0.95] | 0.96 | 0.098 | 0.032 | 0.69 | — | 0.90 ± 0.01 |
-| LAD | isotonic | 0.84 [0.80–0.89] | 0.89 | 0.153 | 0.062 | 0.59 | — | 0.84 ± 0.01 |
-| LCX | isotonic | 0.76 [0.71–0.82] | 0.70 | 0.195 | 0.077 | 0.42 | — | 0.74 ± 0.00 |
-| RCA | isotonic | 0.74 [0.68–0.79] | 0.68 | 0.198 | 0.028 | 0.38 | — | 0.73 ± 0.01 |
+| CAD | isotonic | 0.91 [0.87–0.95] | 0.960 | 0.098 | 0.032 | 0.69 | 88% | 0.904 ± 0.007 |
+| LAD | isotonic | 0.84 [0.80–0.89] | 0.879 | 0.153 | 0.062 | 0.59 | 82% | 0.835 ± 0.013 |
+| LCX | isotonic | 0.76 [0.71–0.82] | 0.635 | 0.195 | 0.077 | 0.42 | 71% | 0.741 ± 0.004 |
+| RCA | isotonic | 0.74 [0.68–0.79] | 0.607 | 0.198 | 0.028 | 0.38 | 70% | 0.727 ± 0.012 |
 
 *Exact values are read live from `artifacts/metrics.json` in the app.* Reliability, ROC, PR and
 confusion figures are committed under `artifacts/`.

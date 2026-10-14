@@ -13,6 +13,8 @@ export interface VesselConfig {
   cameraPreset: { theta: number; phi: number };
   /** Html label anchor in model space (metres) */
   labelPos: [number, number, number];
+  /** constant screen-space nudge (px) so neighbouring markers never touch */
+  screenOffset: [number, number];
 }
 
 export const VESSEL_CONFIG: VesselConfig[] = [
@@ -23,6 +25,7 @@ export const VESSEL_CONFIG: VesselConfig[] = [
     full: "Left anterior descending",
     cameraPreset: { theta: 0, phi: 1.35 },
     labelPos: [0, 0, 0],
+    screenOffset: [-26, -6],
   },
   {
     head: "lcx",
@@ -31,6 +34,7 @@ export const VESSEL_CONFIG: VesselConfig[] = [
     full: "Left circumflex",
     cameraPreset: { theta: -1.15, phi: 1.45 },
     labelPos: [0, 0, 0],
+    screenOffset: [20, 10],
   },
   {
     head: "rca",
@@ -39,6 +43,7 @@ export const VESSEL_CONFIG: VesselConfig[] = [
     full: "Right coronary artery",
     cameraPreset: { theta: 1.25, phi: 1.5 },
     labelPos: [0, 0, 0],
+    screenOffset: [0, 0],
   },
 ];
 

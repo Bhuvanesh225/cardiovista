@@ -20,14 +20,14 @@ export function Dashboard() {
   }, [safetyAck, presets, applyPreset, predict]);
 
   return (
-    <div className="grid min-h-0 flex-1 gap-3 p-3 lg:grid-cols-[340px_minmax(0,1fr)_416px]">
-      <div className="min-h-0 lg:h-full">
+    <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-3 lg:grid lg:h-full lg:grid-cols-[340px_minmax(0,1fr)_416px] lg:overflow-hidden">
+      <div className="shrink-0 lg:h-full lg:min-h-0 lg:shrink">
         <PatientPanel />
       </div>
-      <div className="min-h-0 lg:h-full">
+      <div className="min-h-[460px] shrink-0 lg:h-full lg:min-h-0 lg:shrink">
         <ViewerPanel />
       </div>
-      <div className="min-h-0 lg:h-full">
+      <div className="shrink-0 lg:h-full lg:min-h-0 lg:shrink">
         <RiskPanel />
       </div>
       {error ? (
