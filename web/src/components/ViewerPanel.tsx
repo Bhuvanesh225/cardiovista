@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ORIENTATION_PRESETS, VESSEL_CONFIG } from "../lib/vesselConfig";
+import { VESSEL_CONFIG } from "../lib/vesselConfig";
 import { useRiskStore } from "../lib/store";
 import { HeartScene } from "./HeartScene";
 import type { HeadName } from "../lib/types";
@@ -10,10 +10,15 @@ export function ViewerPanel() {
   const probs = useRiskStore((s) => s.probs);
   const selected = useRiskStore((s) => s.selected);
   const select = useRiskStore((s) => s.select);
+  const bpm = useRiskStore((s) => Number(s.inputs.PR) || 78);
   const [isolate, setIsolate] = useState<VesselHead | "all">("all");
-  const [xray, setXray] = useState(false);
-  const [orientation, setOrientation] = useState("anterior");
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [explode, setExplode] = useState(0);
+  const [focus, setFocus] = useState<VesselHead | null>(null);
+
+  const isolateVessel = (v: VesselHead | "all") => {
+    setIsolate(v);
+    setFocus(v === "all" ? null : v);
+  };
 
   return (
     <section
@@ -24,24 +29,32 @@ export function ViewerPanel() {
         <h2 className="text-[13px] font-bold uppercase tracking-wide text-slate-200">
           Anatomical risk map
         </h2>
-        <div className="flex flex-wrap items-center gap-1.5">
-          <div role="group" aria-label="Camera orientation" className="flex rounded-lg border border-line bg-surface-container p-0.5">
-            {Object.entries(ORIENTATION_PRESETS).map(([id, preset]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setOrientation(id)}
-                aria-pressed={orientation === id}
-                className={`rounded-md px-2 py-1 text-[11px] font-semibold transition ${
-                  orientation === id ? "bg-primary/20 text-primary" : "text-muted hover:text-white"
-                }`}
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-          <Toggle active={xray} onClick={() => setXray((v) => !v)} label="X-ray" testid="toggle-xray" />
-          <Toggle active={autoRotate} onClick={() => setAutoRotate((v) => !v)} label="Spin" />
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-[11px] font-semibold text-muted">
+            Explode
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={Math.round(explode * 100)}
+              onChange={(e) => setExplode(Number(e.target.value) / 100)}
+              aria-label="Exploded view amount"
+              data-testid="explode"
+              className="h-1.5 w-24 cursor-pointer appearance-none rounded-full bg-surface-raised accent-primary"
+            />
+            <span className="w-9 tabular-nums text-white">{Math.round(explode * 100)}%</span>
+          </label>
+          {focus ? (
+            <button
+              type="button"
+              onClick={() => setFocus(null)}
+              data-testid="reset-view"
+              className="rounded-lg border border-primary bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary transition hover:bg-primary/25"
+            >
+              Reset view
+            </button>
+          ) : null}
         </div>
       </header>
 
@@ -50,12 +63,14 @@ export function ViewerPanel() {
           probs={probs}
           selected={selected}
           isolate={isolate}
-          xray={xray}
-          orientation={orientation}
-          autoRotate={autoRotate}
+          bpm={bpm}
+          explode={explode}
+          focus={focus}
           onSelectVessel={(h: HeadName) => {
             if (h !== "cad") select(h);
           }}
+          onFocusVessel={setFocus}
+          onBackgroundClick={() => setFocus(null)}
         />
         {!probs ? (
           <div className="pointer-events-none absolute inset-x-0 top-3 mx-auto w-max rounded-full border border-line bg-black/60 px-3 py-1 text-[11px] font-semibold text-muted backdrop-blur">
@@ -68,11 +83,11 @@ export function ViewerPanel() {
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-bold uppercase tracking-wider text-muted">Isolate</span>
           <div role="group" aria-label="Isolate vessel" className="flex gap-1">
-            <Chip active={isolate === "all"} onClick={() => setIsolate("all")}>
+            <Chip active={isolate === "all"} onClick={() => isolateVessel("all")}>
               All
             </Chip>
             {VESSEL_CONFIG.map((v, i) => (
-              <Chip key={v.head} active={isolate === v.head} onClick={() => setIsolate(v.head)}>
+              <Chip key={v.head} active={isolate === v.head} onClick={() => isolateVessel(v.head)}>
                 <span className="mr-1 inline-grid h-3.5 w-3.5 place-items-center rounded-full bg-surface-raised text-[8px] font-extrabold text-slate-300">
                   {i + 1}
                 </span>
@@ -84,7 +99,8 @@ export function ViewerPanel() {
         <Legend />
       </div>
       <p className="border-t border-line px-4 py-2 text-[10.5px] text-muted">
-        Drag to orbit · scroll to zoom · click a coronary or its label to sync with the risk bars.
+        Drag to orbit · scroll to zoom · click a coronary to select · double-click to focus ·
+        click empty space to reset · the beat follows the patient&apos;s pulse.
       </p>
     </section>
   );
@@ -103,32 +119,6 @@ function Legend() {
         <i className="h-2.5 w-2.5 rounded-full bg-error" /> &gt;60%
       </span>
     </div>
-  );
-}
-
-function Toggle({
-  active,
-  onClick,
-  label,
-  testid,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  testid?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      data-testid={testid}
-      className={`rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition ${
-        active ? "border-primary bg-primary/15 text-primary" : "border-line bg-surface-container text-muted hover:text-white"
-      }`}
-    >
-      {label}
-    </button>
   );
 }
 

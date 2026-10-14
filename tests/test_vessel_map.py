@@ -1,6 +1,6 @@
 """The probability -> mesh-node correspondence is a single locked file.
 
-Parses the committed heart_bp3d.glb directly (no three.js) and asserts every
+Parses the committed heart.glb directly (no three.js) and asserts every
 `meshName` in web/src/lib/vesselConfig.ts exists as a node in the mesh, and that
 the four angiography targets are never model inputs.
 """
@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT))
 
 from app.features import FEATURE_NAMES, FORBIDDEN_ANY  # noqa: E402
 
-GLB = ROOT / "assets" / "heart_bp3d.glb"
+GLB = ROOT / "assets" / "heart.glb"
 VESSEL_CONFIG = ROOT / "web" / "src" / "lib" / "vesselConfig.ts"
 
 
@@ -44,7 +44,21 @@ def test_glb_present_and_under_budget():
 
 def test_glb_has_three_coronary_nodes():
     nodes = glb_node_names(GLB)
-    for name in ("coronary_LAD", "coronary_LCX", "coronary_RCA"):
+    for name in (
+        "Anterior interventricular artery",
+        "Diagonal coronary branch",
+        "Right marginal coronary artery",
+    ):
+        assert name in nodes, f"{name} missing from mesh (found {nodes})"
+
+
+def test_glb_has_core_anatomy_nodes():
+    nodes = glb_node_names(GLB)
+    for name in (
+        "Heart ventricular and atrial myocardium",
+        "Ascending aorta and aortic arch",
+        "Pulmonary trunk",
+    ):
         assert name in nodes, f"{name} missing from mesh (found {nodes})"
 
 

@@ -8,10 +8,14 @@ export const HEADS: HeadName[] = ["cad", "lad", "lcx", "rca"];
 export interface HeadProb {
   p: number;
   ci: [number, number];
+  ci_halfwidth?: number;
   threshold: number;
   flag: "low" | "moderate" | "high";
+  uncertain?: boolean;
   calibration: string;
   brier: number;
+  ece?: number;
+  roc_auc?: number | null;
 }
 
 export type Probs = Record<HeadName, HeadProb>;
@@ -54,6 +58,8 @@ export interface HeadMetrics {
   roc_ci: [number, number];
   pr_auc: number;
   brier: number;
+  brier_sigmoid?: number;
+  brier_isotonic?: number;
   ece: number;
   youden: number;
   sensitivity_at_youden: number;
@@ -62,6 +68,8 @@ export interface HeadMetrics {
   cv_fits: number;
   calibration: string;
   n_pos: number;
+  n_test?: number;
+  n_pos_test?: number;
   confusion_youden: number[][];
   "confusion_0.5": number[][];
 }

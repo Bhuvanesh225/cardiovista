@@ -70,13 +70,15 @@ blocked.
 
 ## Page 3 — Models & calibration
 
-Four **independent** XGBoost binaries (separate prevalence, drivers, thresholds). Preprocessing
-(`median impute + standardise` for numeric, `one-hot` for categorical) lives **inside** the
-pipeline and is never fitted on the full dataset. Imbalance uses `scale_pos_weight`; SMOTE is an
-inside-fold ablation only.
+Four **independent** binaries (separate prevalence, drivers, thresholds): CAD is a
+**tuned-XGBoost + L2-logistic averaged-raw ensemble** (5-fold OOF: XGB 0.929 / LR 0.935 /
+ensemble 0.940 — ensemble wins on both AUC and Brier); LAD/LCX/RCA are tuned XGBoost.
+Preprocessing (`median impute + standardise` for numeric, `one-hot` for categorical) lives
+**inside** the pipeline and is never fitted on the full dataset. Imbalance uses
+`scale_pos_weight`; SMOTE is an inside-fold ablation only.
 
-**Tuning.** Optuna, seed 42, objective PR-AUC. **Validation.** Repeated stratified 5-fold × 5
-seeds = 25 fits/head, with **nested calibration** and 2000× bootstrap AUC CIs.
+**Tuning.** Optuna, seed 42, objective PR-AUC (XGB legs). **Validation.** Repeated stratified 5-fold × 5
+seeds = 25 fits/head (CAD ensemble re-validated 3×5 nested, 500× bootstrap), with **nested calibration**.
 
 **Calibration rule (frozen).** Sigmoid by default; isotonic kept only if it wins Brier by
 > 0.003.
@@ -85,35 +87,41 @@ seeds = 25 fits/head, with **nested calibration** and 2000× bootstrap AUC CIs.
 
 | Head | Cal | ROC-AUC [95% CI] | PR-AUC | Brier | ECE | Youden | Sens@J | CV mean±SD |
 |---|---|---|---|---|---|---|---|---|
-| CAD | isotonic | 0.91 [0.87–0.95] | 0.960 | 0.098 | 0.032 | 0.69 | 88% | 0.904 ± 0.007 |
+| CAD* | isotonic | 0.92 [0.88–0.95] | 0.957 | 0.097 | 0.030 | 0.73 | 84% | 0.909 ± 0.002 |
 | LAD | isotonic | 0.84 [0.80–0.89] | 0.879 | 0.153 | 0.062 | 0.59 | 82% | 0.835 ± 0.013 |
 | LCX | isotonic | 0.76 [0.71–0.82] | 0.635 | 0.195 | 0.077 | 0.42 | 71% | 0.741 ± 0.004 |
 | RCA | isotonic | 0.74 [0.68–0.79] | 0.607 | 0.198 | 0.028 | 0.38 | 70% | 0.727 ± 0.012 |
 
-*Exact values are read live from `artifacts/metrics.json` in the app.* Reliability, ROC, PR and
+*CAD = XGB+LR ensemble (see above). *Exact values are read live from `artifacts/metrics.json` in the app.* Reliability, ROC, PR and
 confusion figures are committed under `artifacts/`.
 
 ---
 
 ## Page 4 — The 3D heart
 
-**Single frozen asset** `assets/heart_bp3d.glb` — **33,578 triangles / 0.71 MB**, glTF binary,
-with named nodes `myocardium`, `aorta`, `pulmonary_trunk`, `coronary_LAD`, `coronary_LCX`,
-`coronary_RCA`. SHA-256 `47965791…653b`, pinned in the registry.
+**Single frozen asset** `assets/heart.glb` — **10,805 triangles / 0.28 MB**, glTF binary,
+with named nodes for myocardium, aortic arch, pulmonary trunk, venae cavae and three
+epicardial vessels (`Anterior interventricular artery` = LAD, `Diagonal coronary branch`
+≈ LCX territory, `Right marginal coronary artery` = RCA branch). SHA-256 `8356a15d…059bec`,
+pinned in the registry.
 
-**License.** BodyParts3D (Database Center for Life Science) — **CC BY-SA 2.1 JP only**; the NIH
-mirror was dropped for a clean licence chain. Attribution shown in-app and in `ASSETS_LICENSE.md`.
+**License.** Innerscene "Heart" (adapted from MakeHuman CC0 assets) — **CC0 1.0 public
+domain**; no attribution required, no share-alike. Textures downscaled 2048→1024 JPEG
+for the web budget. Credit noted in-app and in `ASSETS_LICENSE.md`.
 
 **`vesselConfig.ts` is the SOLE probability → mesh correspondence.** `tests/test_vessel_map.py`
 parses the GLB and asserts all three coronary nodes exist and match the config (CI fails on drift).
 
 **Visual grammar.** green `< 30%` · amber `30–60%` · red `> 60%` (legend + numeric % →
 colour-blind safe). `emissiveIntensity = 0.35 + 0.65·p`; the highest vessel pulses via
-`useFrame`. Myocardium is warm off-white with an X-ray (transparent) toggle; selected vessels get
-a dashed edge overlay; raycast-enlarged hit targets for touch.
+`useFrame`. The LAD/LCX/RCA highlights are slender procedural tubes raycast onto the
+true coronary grooves (the mesh ships no isolated LCX/RCA trunk); anatomy keeps its
+authored textured PBR materials. Selected vessels get a dashed edge overlay;
+raycast-enlarged invisible hit-tubes make the thin trunks easy to hover/click.
 
-**Controls.** Orbit + autoRotate + click-select + `Html` labels + isolate + X-ray + Anterior /
-Lateral / Inferior presets. **Perf:** `dpr [1, 1.5]`, adaptive; click↔bar sync is e2e-tested.
+**Controls.** Orbit + click-select + hover readout (name + live %) + double-click /
+isolate focus-glide with reset + explode slider + heartbeat synced to the patient's
+pulse slider. **Perf:** `dpr [1, 2]`, adaptive; click↔bar sync is e2e-tested.
 
 **Fallback.** `Fallback2D` renders the same green/amber/red mapping and % when WebGL is absent;
 mobile 360 px verified. `prefers-reduced-motion` pauses the pulse and auto-rotate.
@@ -124,8 +132,8 @@ mobile 360 px verified. `prefers-reduced-motion` pauses the pulse and auto-rotat
 
 **Layout.** three columns on `lg` (form | 3D + legend | risk + SHAP) → stacked on mobile.
 
-- **Left:** the 55-field form with physiological chips, three **frozen** presets (Typical-angina
-  58M · Low-risk 44F · Borderline 61M) shared by docs, video and e2e, plus CSV upload.
+- **Left:** the 55-field form with physiological chips, three **frozen real-row** presets (High-risk
+  54M · Low-risk 57F · Borderline 50M) shared by docs, video and e2e (ids kept stable for tests), plus CSV upload.
 - **Center:** `<HeartScene/>` + legend + isolate chips + X-ray + orientation presets.
 - **Right:** CAD hero (probability + 95% CI + Youden threshold + HIGH/MOD/LOW) and three vessel
   bars with CI whiskers and a threshold tick.
@@ -136,8 +144,10 @@ Symptoms / ECG / Labs / Echo). Sign colour: red = risk-increasing, blue = protec
 
 **Live counterfactual (not illustrative).** Sliders for SBP / LDL / HDL / quit-smoking issue a
 debounced `POST /v1/counterfactual`; Δpp is shown with a guardrail note. OOD combinations block
-export. Example: SBP 150→120 + quit smoking lowers CAD risk by a double-digit percentage-point
-margin on the frozen 58M exemplar.
+export. Replayable example on the Borderline 50M preset (CAD 0.60, ±uncertain, below the 0.73
+Youden point): optimising LDL 163→80, HDL 46→60, TG 340→100, FBS 104→85, EF 50→60 and HTN 1→0
+lowers CAD to 0.16 (−44.0 pp). High-risk presets near the calibration ceiling move less —
+expected saturation, not a bug.
 
 ---
 
@@ -165,7 +175,7 @@ regression.
 |---|---|
 | n=303 single-centre overfit | repeated 5×5 + bootstrap CIs + Youden honesty + `BIAS.md` |
 | SMOTE leakage | inside-fold only; default `scale_pos_weight`; CI asserts placement |
-| Mesh licence/size | single CC BY-SA 2.1 JP + attribution + SHA + `< 3 MB` proof |
+| Mesh licence/size | single CC0 mesh + credit + SHA + `< 3 MB` proof |
 | Calibration harm | Brier-gated sigmoid-default rule with reliability evidence |
 | Perf regression | FastPre + DPR cap + 2D fallback + CI bench gate |
 

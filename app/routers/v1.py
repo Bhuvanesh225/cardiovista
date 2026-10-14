@@ -67,6 +67,28 @@ def presets() -> dict[str, Any]:
 def model_info() -> dict[str, Any]:
     model = get_model()
     reg = model.registry
+    full = _load_metrics()
+    heads_full: dict[str, Any] = {}
+    for h in ("cad", "lad", "lcx", "rca"):
+        m = (full.get("heads", {}).get(h, {}) if full else {}) or {}
+        heads_full[h] = {
+            "threshold": m.get("youden", reg.get("thresholds", {}).get(h)),
+            "brier": m.get("brier", reg.get("brier", {}).get(h)),
+            "brier_sigmoid": m.get("brier_sigmoid"),
+            "brier_isotonic": m.get("brier_isotonic"),
+            "ece": m.get("ece", reg.get("ece", {}).get(h)),
+            "roc_auc": m.get("roc_auc", reg.get("roc_auc", {}).get(h)),
+            "roc_ci": m.get("roc_ci"),
+            "pr_auc": m.get("pr_auc", reg.get("pr_auc", {}).get(h)),
+            "cv_auc_mean": m.get("cv_auc_mean", reg.get("cv_auc_mean", {}).get(h)),
+            "cv_auc_sd": m.get("cv_auc_sd", reg.get("cv_auc_sd", {}).get(h)),
+            "cv_fits": m.get("cv_fits", 25),
+            "sensitivity_at_youden": m.get("sensitivity_at_youden"),
+            "confusion_youden": m.get("confusion_youden"),
+            "confusion_0.5": m.get("confusion_0.5"),
+            "n_pos": m.get("n_pos"),
+            "calibration": m.get("calibration", reg.get("calibration", {}).get(h)),
+        }
     return {
         "model_hash": reg.get("model_hash"),
         "mesh_sha": reg.get("mesh_sha"),
@@ -76,7 +98,13 @@ def model_info() -> dict[str, Any]:
         "thresholds": {k: v["threshold"] for k, v in model.heads.items()},
         "brier": {k: v["brier"] for k, v in model.heads.items()},
         "calibration": {k: v["calibration"] for k, v in model.heads.items()},
+        "ece": reg.get("ece"),
+        "roc_auc": reg.get("roc_auc"),
+        "pr_auc": reg.get("pr_auc"),
+        "cv_auc_mean": reg.get("cv_auc_mean"),
+        "cv_auc_sd": reg.get("cv_auc_sd"),
         "n_train_rows": reg.get("n_train_rows"),
+        "heads": heads_full,
     }
 
 

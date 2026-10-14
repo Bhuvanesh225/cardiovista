@@ -1,53 +1,53 @@
 {
-  "generated_at": "2026-10-14T13:32:37+00:00",
+  "generated_at": "2026-10-14T16:10:31+00:00",
   "seed": 42,
   "n_rows": 303,
   "n_features": 55,
-  "model_hash": "82eb7eb59be50a37f529c00c657c46f15f52b2440eed442652cdaf5b5d7b32ae",
-  "mesh_sha": "47965791ff90e376021b40a8a9d43c7d7d9379c035f724336d51297aa67b653b",
+  "model_hash": "d95d610294bba5aff9479d9aab413c44d3918ea584f09613928f499d4ae83976",
+  "mesh_sha": "8356a15d0b1f0a40a9dbcb83743ae9ffb62540b741f10c7bab3586ed60059bec",
   "repeats": 5,
   "heads": {
     "cad": {
       "head": "cad",
-      "roc_auc": 0.9115,
+      "roc_auc": 0.9178,
       "roc_ci": [
-        0.8721,
-        0.945
+        0.88,
+        0.9507
       ],
-      "pr_auc": 0.9601,
-      "brier": 0.098,
-      "ece": 0.0315,
-      "youden": 0.6914,
-      "sensitivity_at_youden": 0.8796,
+      "pr_auc": 0.957,
+      "brier": 0.0969,
+      "ece": 0.0301,
+      "youden": 0.727,
+      "sensitivity_at_youden": 0.838,
       "confusion_youden": [
         [
-          72,
-          15
+          76,
+          11
         ],
         [
-          26,
-          190
+          35,
+          181
         ]
       ],
       "confusion_0.5": [
         [
-          66,
-          21
+          64,
+          23
         ],
         [
-          15,
-          201
+          18,
+          198
         ]
       ],
       "n_test": 303,
       "n_pos_test": 216,
-      "cv_auc_mean": 0.9045,
-      "cv_auc_sd": 0.007,
-      "cv_fits": 25,
+      "cv_auc_mean": 0.9093,
+      "cv_auc_sd": 0.0022,
+      "cv_fits": 15,
       "n_pos": 216,
       "calibration": "isotonic",
-      "brier_sigmoid": 0.1036,
-      "brier_isotonic": 0.0928
+      "brier_sigmoid": 0.0935,
+      "brier_isotonic": 0.0853
     },
     "lad": {
       "head": "lad",

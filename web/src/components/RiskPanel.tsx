@@ -81,7 +81,20 @@ function HeroBadge({ probs, latency }: { probs: Probs | null; latency: number | 
         <span>
           cal <strong className="text-slate-300">{cad?.calibration ?? "—"}</strong>
         </span>
+        <span>
+          Brier <strong className="tabular text-slate-300">{cad ? cad.brier.toFixed(3) : "—"}</strong>
+        </span>
+        {cad?.ece !== undefined ? (
+          <span>
+            ECE <strong className="tabular text-slate-300">{cad.ece.toFixed(3)}</strong>
+          </span>
+        ) : null}
       </div>
+      {cad?.uncertain ? (
+        <p className="mt-2 rounded-lg border border-warning/40 bg-warning/10 px-2.5 py-1.5 text-[11px] font-semibold text-warning">
+          Borderline zone (0.35–0.65) — inherently uncertain. See CI + discuss with a clinician.
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -157,6 +170,11 @@ function VesselBar({
           >
             {hp ? hp.flag : "—"}
           </span>
+          {hp?.uncertain ? (
+            <span className="rounded border border-warning/50 bg-warning/15 px-1.5 py-0.5 text-[9.5px] font-extrabold uppercase text-warning" title="Borderline 0.35–0.65: inherently uncertain">
+              ±uncertain
+            </span>
+          ) : null}
         </span>
       </div>
       <div className="relative mt-2 h-2 w-full rounded-full bg-surface-raised">

@@ -34,6 +34,11 @@ data/*.log
 data/pip-install*.log
 data/_*.py
 
+# Scratch: scratch run logs, capture scripts, ad-hoc UI capture bundle
+logs/
+web/artifacts/
+web/capture*.mjs
+
 # Keep these committed (proof bundle):
 !artifacts/metrics.json
 !artifacts/bench_latency.json

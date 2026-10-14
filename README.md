@@ -17,7 +17,7 @@ stenosis ≥ 50%), mapped live onto one anatomical 3D heart and explained with T
 | Backend | FastAPI · pydantic v2 (`extra="forbid"`) · joblib |
 | Model | 4× XGBoost binaries → sigmoid/isotonic calibration (scikit-learn) · TreeSHAP |
 | Train | Optuna · pandas · matplotlib (artefacts only) |
-| Assets | one frozen BodyParts3D mesh (`heart_bp3d.glb`, 33,578 tris) |
+| Assets | one frozen CC0 heart mesh (`heart.glb`, 10,805 tris, textured) |
 
 ## Repository layout
 
@@ -33,14 +33,14 @@ cardiovista/
 │  ├─ preprocess.py         # Frozen ColumnTransformer + numpy FastPre
 │  ├─ features.py           # the 55 allowed inputs (single source of truth)
 │  ├─ registry.json         # {model_hash, mesh_sha, thresholds, brier}
-│  └─ presets.json          # frozen 58M / 44F / 61M exemplars
+│  └─ presets.json          # frozen real-row 54M / 57F / 50M exemplars (stable ids)
 ├─ train/                   # training + benchmarks (seed 42)
 │  ├─ train.py  bench_latency.py
 ├─ web/                     # Vite + React + R3F dashboard
 │  ├─ src/HeartScene.tsx    # 3D heart, emissive/pulse, isolate/X-ray/presets
 │  ├─ src/lib/vesselConfig.ts  # the SOLE prob → mesh correspondence
 │  └─ src/components/…
-├─ assets/heart_bp3d.glb + sha256.txt
+├─ assets/heart.glb + sha256.txt
 ├─ artifacts/               # metrics.json, roc/pr/reliability PNGs, bench_latency.json
 ├─ tests/                   # leakage, vessel-map, fastpre, api
 └─ docs/                    # 6-page documentation
@@ -95,7 +95,7 @@ cd web && npx playwright test        # e2e click-sync + counterfactual + waterma
 ## License
 
 - Code: **MIT**
-- Anatomical mesh: BodyParts3D (Database Center for Life Science) — **CC BY-SA 2.1 JP**
+- Anatomical mesh: Innerscene "Heart" (MakeHuman CC0 assets) — **CC0 1.0** (public domain)
 - Dataset: UCI *Extension of Z-Alizadeh Sani* — cite the UCI repository (CC BY 4.0)
 
 See `ASSETS_LICENSE.md` and `BIAS.md`.

@@ -54,20 +54,48 @@ class RiskModel:
             return "moderate"
         return "low"
 
+    @staticmethod
+    def _honest_halfwidth(p: float, ece: float, n: int) -> float:
+        """Honest per-prediction half-width.
+
+        Old code reused (ROC-AUC CI width)/4 as a per-prediction CI — that is a
+        group-level rank metric, not a per-patient interval, and it was
+        overconfident (±1.8pp on CAD). Honest width = binomial sampling term +
+        head ECE (calibration error floor), widened in the borderline band.
+        """
+        import math
+
+        n = max(30, int(n or 303))
+        se = 1.96 * math.sqrt(max(1e-6, p * (1.0 - p)) / n)
+        hw = se + float(ece or 0.0)
+        if 0.35 <= p <= 0.65:
+            hw += 0.03  # borderline zone is inherently uncertain (see BIAS.md)
+        return float(min(0.25, max(0.03, hw)))
+
     # -- prediction -------------------------------------------------------
     def predict_proba(self, values: dict[str, Any]) -> dict[str, Any]:
         X = self._frame(values)
+        n_rows = int(self.registry.get("n_train_rows", 303) or 303)
+        ece_map = self.registry.get("ece", {}) or {}
+        roc_map = self.registry.get("roc_auc", {}) or {}
         out: dict[str, Any] = {}
         for head_name, head in self.heads.items():
             p = float(head["clf"].predict_proba(X)[0, 1])
-            ci_pm = float(head.get("ci_pm", 0.05))
+            ece = float(ece_map.get(head_name, head.get("ece", 0.05)))
+            hw = self._honest_halfwidth(p, ece, n_rows)
+            lo = round(max(0.0, p - hw), 4)
+            hi = round(min(1.0, p + hw), 4)
             out[head_name] = {
                 "p": round(p, 4),
-                "ci": [round(max(0.0, p - ci_pm), 4), round(min(1.0, p + ci_pm), 4)],
+                "ci": [lo, hi],
+                "ci_halfwidth": round(hw, 4),
                 "threshold": round(float(head["threshold"]), 3),
                 "flag": self._flag(p),
+                "uncertain": bool(0.35 <= p <= 0.65),
                 "calibration": head["calibration"],
                 "brier": round(float(head["brier"]), 4),
+                "ece": round(ece, 4),
+                "roc_auc": roc_map.get(head_name),
             }
         return out
 

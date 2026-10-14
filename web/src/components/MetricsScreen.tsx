@@ -83,16 +83,24 @@ export function MetricsScreen() {
             Brier by &gt; 0.003. Calibration is nested — never fitted on test data.
           </p>
           <dl className="mt-3 grid grid-cols-2 gap-2 text-[12px]">
-            {HEADS.map((h) => (
-              <div key={h} className="rounded-lg bg-surface-container p-2.5">
-                <dt className="text-[10px] uppercase tracking-wider text-muted">{h} Brier sig→iso</dt>
-                <dd className="tabular mt-0.5 font-bold text-white">
-                  {m.heads[h].head === h ? `${m.heads[h].brier.toFixed(3)} · ` : ""}
-                  {m.heads[h].calibration}
-                </dd>
-              </div>
-            ))}
+            {HEADS.map((h) => {
+              const hm = m.heads[h];
+              const sig = hm.brier_sigmoid?.toFixed(4) ?? "—";
+              const iso = hm.brier_isotonic?.toFixed(4) ?? "—";
+              return (
+                <div key={h} className="rounded-lg bg-surface-container p-2.5">
+                  <dt className="text-[10px] uppercase tracking-wider text-muted">{h} Brier sig→iso</dt>
+                  <dd className="tabular mt-0.5 font-bold text-white">
+                    {sig} → {iso} · {hm.calibration}
+                  </dd>
+                </div>
+              );
+            })}
           </dl>
+          <p className="mt-3 text-[11.5px] text-muted">
+            Per-patient 95% CI = 1.96·√(p(1−p)/n) + head ECE, +0.03 in the 0.35–0.65 borderline band.
+            LCX/RCA carry wider intervals (higher Brier/ECE) — shown on every vessel bar.
+          </p>
         </Card>
 
         <Card title="Bias & limitations">
@@ -120,6 +128,79 @@ export function MetricsScreen() {
             </figcaption>
           </figure>
         ))}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        {HEADS.map((h) => (
+          <figure key={`pr-${h}`} className="rounded-xl border border-line bg-surface p-3 text-center">
+            <img
+              src={`/artifacts/pr_${h}.png`}
+              alt={`${h.toUpperCase()} precision-recall curve`}
+              className="mx-auto w-full rounded-lg bg-white"
+              onError={(e) => ((e.currentTarget.style.display = "none"))}
+            />
+            <figcaption className="mt-2 text-[11px] font-semibold text-muted">
+              {h.toUpperCase()} PR · AP {m.heads[h].pr_auc.toFixed(3)}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-4">
+        {HEADS.map((h) => (
+          <figure key={`rel-${h}`} className="rounded-xl border border-line bg-surface p-3 text-center">
+            <img
+              src={`/artifacts/reliability_${h}.png`}
+              alt={`${h.toUpperCase()} reliability curve`}
+              className="mx-auto w-full rounded-lg bg-white"
+              onError={(e) => ((e.currentTarget.style.display = "none"))}
+            />
+            <figcaption className="mt-2 text-[11px] font-semibold text-muted">
+              {h.toUpperCase()} reliability · Brier {m.heads[h].brier.toFixed(3)} · ECE{" "}
+              {m.heads[h].ece.toFixed(3)}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-line bg-surface shadow-panel">
+        <table className="w-full min-w-[760px] border-collapse text-[12.5px]">
+          <thead>
+            <tr className="border-b border-line text-left text-[10.5px] uppercase tracking-wider text-muted">
+              <th className="px-4 py-3">Head</th>
+              <th className="px-4 py-3">n / n-pos</th>
+              <th className="px-4 py-3">Confusion @Youden (TN FP / FN TP)</th>
+              <th className="px-4 py-3">Confusion @0.5</th>
+              <th className="px-4 py-3">Youden thr · Sens</th>
+            </tr>
+          </thead>
+          <tbody>
+            {HEADS.map((h) => {
+              const hm = m.heads[h];
+              const cy = hm.confusion_youden;
+              const c5 = hm["confusion_0.5"];
+              return (
+                <tr key={h} className="border-b border-line/60 last:border-0">
+                  <td className="px-4 py-3 font-bold text-white">
+                    {h === "cad" ? "CAD" : h.toUpperCase()}
+                  </td>
+                  <td className="tabular px-4 py-3 text-slate-300">
+                    {hm.n_test ?? m.n_rows} / {hm.n_pos_test ?? hm.n_pos}
+                  </td>
+                  <td className="tabular px-4 py-3 text-slate-200">
+                    [{cy[0][0]} {cy[0][1]} / {cy[1][0]} {cy[1][1]}]
+                  </td>
+                  <td className="tabular px-4 py-3 text-slate-200">
+                    [{c5[0][0]} {c5[0][1]} / {c5[1][0]} {c5[1][1]}]
+                  </td>
+                  <td className="tabular px-4 py-3 text-slate-300">
+                    {hm.youden.toFixed(2)} · {(hm.sensitivity_at_youden * 100).toFixed(0)}%
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       <Card title="Reproducibility">

@@ -34,9 +34,9 @@ def load_frame():
     return pd.read_excel(RAW_XLSX)
 
 BANDS = [
-    ("typical-angina-58m", "Typical angina · high risk", 0.87, "high"),
-    ("low-risk-44f", "Low risk · young, normal ECG", 0.14, "low"),
-    ("borderline-61m", "Borderline · uncertain", 0.56, "moderate"),
+    ("typical-angina-58m", "High-risk · 54M", 0.87, "high"),
+    ("low-risk-44f", "Low-risk · 57F", 0.14, "low"),
+    ("borderline-61m", "Borderline · 50M uncertain", 0.56, "moderate"),
 ]
 
 

@@ -35,8 +35,8 @@ export function DocsScreen() {
 
       <Section title="4 · The 3D heart">
         <p>
-          A single frozen anatomical mesh (BodyParts3D, 33,578 triangles) with named coronary nodes.
-          Colour encodes probability (green &lt; 30%, amber 30–60%, red &gt; 60%); emissive intensity
+          A single frozen anatomical mesh (Innerscene "Heart", CC0, 10,805 triangles with
+          textured PBR materials) with named coronary nodes. Colour encodes probability (green &lt; 30%, amber 30–60%, red &gt; 60%); emissive intensity
           encodes probability and the highest vessel pulses (paused under{" "}
           <code>prefers-reduced-motion</code>). A 2D SVG fallback renders the same mapping when WebGL is
           unavailable.
@@ -68,8 +68,8 @@ cd web && npm install && npm run dev   # :5173 proxies :8000`}
         <ul className="list-disc space-y-1 pl-5">
           <li>Code: MIT.</li>
           <li>
-            Anatomical mesh: BodyParts3D (Database Center for Life Science),{" "}
-            <strong>CC BY-SA 2.1 JP</strong>.
+            Anatomical mesh: Innerscene "Heart" (MakeHuman CC0 assets),{" "}
+            <strong>CC0 1.0 public domain</strong>.
           </li>
           <li>Dataset: UCI Extension of Z-Alizadeh Sani — cite the UCI repository.</li>
         </ul>

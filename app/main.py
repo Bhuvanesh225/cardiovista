@@ -38,6 +38,14 @@ def verify_registry() -> dict:
             raise RuntimeError(
                 f"model hash drift: registry={reg['model_hash'][:12]} actual={actual[:12]}"
             )
+    mesh_name = reg.get("mesh_name", "heart.glb")
+    mesh_path = ROOT / "assets" / mesh_name
+    if mesh_path.exists() and reg.get("mesh_sha"):
+        actual_mesh = _sha256(mesh_path)
+        if actual_mesh != reg["mesh_sha"]:
+            raise RuntimeError(
+                f"mesh hash drift: registry={reg['mesh_sha'][:12]} actual={actual_mesh[:12]}"
+            )
     return reg
 
 

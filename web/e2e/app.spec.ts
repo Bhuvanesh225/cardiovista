@@ -52,9 +52,15 @@ test("low-risk preset yields a lower CAD risk than typical angina", async ({ pag
   await expect(hero.getByText(/HIGH|MODERATE|LOW/).first()).toBeVisible();
 });
 
-test("x-ray toggle and orientation controls work", async ({ page }) => {
-  await page.getByTestId("toggle-xray").click();
-  await expect(page.getByTestId("toggle-xray")).toHaveAttribute("aria-pressed", "true");
+test("isolating a vessel focuses it and reset view appears", async ({ page }) => {
+  await page.getByTestId("preset-typical-angina-58m").click();
+  await page.getByTestId("run-prediction").click();
+  // isolate chips sit in the viewer footer; picking LAD focuses the camera
+  const group = page.getByRole("group", { name: "Isolate vessel" });
+  await group.getByRole("button", { name: /LAD/ }).click();
+  await expect(page.getByTestId("reset-view")).toBeVisible();
+  await page.getByTestId("reset-view").click();
+  await expect(page.getByTestId("reset-view")).toHaveCount(0);
 });
 
 test("under-18 is blocked by the API", async ({ page, request }) => {

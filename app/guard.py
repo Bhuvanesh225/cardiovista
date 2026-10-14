@@ -15,7 +15,7 @@ from typing import Any
 
 from .features import FEATURES, FORBIDDEN, FORBIDDEN_ANY, RANGES
 
-AUDIT_PATH = Path(__file__).resolve().parent.parent / "artifacts" / "guard_audit.log"
+AUDIT_PATH = Path(__file__).resolve().parent.parent / "logs" / "guard_audit.log"
 
 # Substrings that may never appear in a field name.
 _FORBIDDEN_SUBSTRINGS = ("cath", "stenos", "angio", "lad", "lcx", "rca")

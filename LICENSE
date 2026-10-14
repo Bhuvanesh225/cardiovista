@@ -23,5 +23,5 @@ SOFTWARE.
 --- 
 
 NOTE ON BUNDLED ASSETS (not covered by the MIT license above):
-The anatomical mesh `assets/heart_bp3d.glb` is derived from BodyParts3D and is
-licensed CC BY-SA 2.1 JP. See ASSETS_LICENSE.md.
+The anatomical mesh `assets/heart.glb` is dedicated to the public domain
+(CC0 1.0). See ASSETS_LICENSE.md.

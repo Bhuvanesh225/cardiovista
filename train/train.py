@@ -375,6 +375,13 @@ def fit_served(df, head, params, seed):
 
 
 def build_presets() -> dict[str, Any]:
+    """Legacy synthetic exemplars — DO NOT overwrite real-row presets.
+
+    Real presets live in app/presets.json (built by train/pick_presets.py from
+    de-identified UCI rows, source_row tracked). Retraining must refresh their
+    expected probabilities, never replace them with synthetic fiction.
+    This fallback is only used when no presets.json exists yet.
+    """
     return {
         "presets": [
             {
@@ -522,13 +529,13 @@ def main() -> None:
     joblib.dump(bundle, bundle_path, compress=3)
     model_hash = hashlib.sha256(bundle_path.read_bytes()).hexdigest()
 
-    mesh_path = ROOT / "assets" / "heart_bp3d.glb"
+    mesh_path = ROOT / "assets" / "heart.glb"
     mesh_sha = hashlib.sha256(mesh_path.read_bytes()).hexdigest() if mesh_path.exists() else None
 
     registry = {
         "model_hash": model_hash,
         "mesh_sha": mesh_sha,
-        "mesh_name": "heart_bp3d.glb",
+        "mesh_name": "heart.glb",
         "trained_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "seed": args.seed,
         "n_train_rows": int(len(df)),
@@ -561,16 +568,35 @@ def main() -> None:
 
     save_figures(fig_data)
 
-    # --- frozen presets ----------------------------------------------------
-    presets = build_presets()
+    # --- frozen presets: refresh real-row presets, never clobber with synthetic --
     from app.model import RiskModel
 
     rm = RiskModel(bundle_path)
-    for p in presets["presets"]:
-        probs = rm.predict_proba({**defaults, **p["inputs"]})
-        p["expected"] = {h: probs[h]["p"] for h in TARGETS}
-        p["flag"] = probs["cad"]["flag"]
-    (ROOT / "app" / "presets.json").write_text(json.dumps(presets, indent=2), encoding="utf-8")
+    presets_path = ROOT / "app" / "presets.json"
+    if presets_path.exists():
+        try:
+            presets = json.loads(presets_path.read_text(encoding="utf-8"))
+            for p in presets["presets"]:
+                probs = rm.predict_proba({**defaults, **p["inputs"]})
+                p["expected"] = {h: probs[h]["p"] for h in TARGETS}
+                p["flag"] = probs["cad"]["flag"]
+            presets_path.write_text(json.dumps(presets, indent=2), encoding="utf-8")
+            print("[presets] refreshed expected probs for real-row presets (kept source_row)")
+        except Exception as exc:
+            print(f"[presets] WARNING: could not refresh real presets ({exc}); writing synthetic fallback")
+            presets = build_presets()
+            for p in presets["presets"]:
+                probs = rm.predict_proba({**defaults, **p["inputs"]})
+                p["expected"] = {h: probs[h]["p"] for h in TARGETS}
+                p["flag"] = probs["cad"]["flag"]
+            presets_path.write_text(json.dumps(presets, indent=2), encoding="utf-8")
+    else:
+        presets = build_presets()
+        for p in presets["presets"]:
+            probs = rm.predict_proba({**defaults, **p["inputs"]})
+            p["expected"] = {h: probs[h]["p"] for h in TARGETS}
+            p["flag"] = probs["cad"]["flag"]
+        presets_path.write_text(json.dumps(presets, indent=2), encoding="utf-8")
 
     print("[done] registry + metrics + presets written")
     print(f"       model_hash={model_hash[:16]} mesh_sha={(mesh_sha or '')[:16]}")
