@@ -48,17 +48,25 @@ function computeLayout(nodes: Record<string, THREE.Mesh>) {
   const position = rotatedCenter.clone().multiplyScalar(-scale);
 
   const labelDots: Record<string, THREE.Vector3> = {};
+  // per-vessel exaggerated placement so thin coronaries read on the surface:
+  // thicken about their own centre + push just proud of the myocardium
+  const vesselFrames: Record<string, { center: THREE.Vector3; push: THREE.Vector3 }> = {};
   for (const v of VESSEL_CONFIG) {
     const g = nodes[v.meshName]?.geometry;
     if (!g) continue;
     g.computeBoundingBox();
     const bb = g.boundingBox as THREE.Box3;
-    // anchor each marker at a distinct anatomical end so neighbours separate
-    if (v.head === "lad") labelDots[v.head] = new THREE.Vector3((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2);
-    else if (v.head === "lcx") labelDots[v.head] = new THREE.Vector3(bb.max.x, (bb.min.y + bb.max.y) / 2, (bb.min.z + bb.max.z) / 2);
-    else labelDots[v.head] = bb.getCenter(new THREE.Vector3());
+    let c: THREE.Vector3;
+    if (v.head === "lad") c = new THREE.Vector3((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2);
+    else if (v.head === "lcx") c = new THREE.Vector3(bb.max.x, (bb.min.y + bb.max.y) / 2, (bb.min.z + bb.max.z) / 2);
+    else c = bb.getCenter(new THREE.Vector3());
+    labelDots[v.head] = c.clone();
+    const dir = c.clone().sub(center);
+    if (dir.lengthSq() < 1e-6) dir.set(0, 1, 0);
+    dir.normalize();
+    vesselFrames[v.head] = { center: c, push: dir.multiplyScalar(3.2) };
   }
-  return { scale, position, labelDots };
+  return { scale, position, labelDots, vesselFrames };
 }
 
 function Model({ probs, selected, isolate, xray, autoRotate, orientation, onSelectVessel }: SceneProps) {
@@ -69,14 +77,15 @@ function Model({ probs, selected, isolate, xray, autoRotate, orientation, onSele
   const anatomyMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: new THREE.Color("#F4EEE3"),
-        roughness: 0.55,
+        color: new THREE.Color("#EDD9CB"),
+        roughness: 0.5,
         metalness: 0.0,
-        emissive: new THREE.Color("#2a2118"),
-        emissiveIntensity: 0.5,
+        emissive: new THREE.Color("#2a1d14"),
+        emissiveIntensity: 0.45,
         transparent: true,
         opacity: xray ? 0.12 : 1,
         depthWrite: !xray,
+        side: THREE.DoubleSide,
       }),
     [xray],
   );
@@ -97,6 +106,7 @@ function Model({ probs, selected, isolate, xray, autoRotate, orientation, onSele
 
       {VESSEL_CONFIG.map((v) => {
         const p = probs ? probs[v.head].p : 0.0;
+        const frame = layout.vesselFrames[v.head];
         return (
           <VesselMesh
             key={v.head}
@@ -108,6 +118,7 @@ function Model({ probs, selected, isolate, xray, autoRotate, orientation, onSele
             isSelected={selected === v.head}
             reduced={reduced}
             onSelect={onSelectVessel}
+            frame={frame}
           />
         );
       })}
@@ -159,9 +170,12 @@ interface VesselMeshProps {
   isSelected: boolean;
   reduced: boolean;
   onSelect: (head: HeadName) => void;
+  frame?: { center: THREE.Vector3; push: THREE.Vector3 };
 }
 
-function VesselMesh({ geometry, head, p, color, dimmed, isSelected, reduced, onSelect }: VesselMeshProps) {
+const VESSEL_THICKEN = 1.55;
+
+function VesselMesh({ geometry, head, p, color, dimmed, isSelected, reduced, onSelect, frame }: VesselMeshProps) {
   const mat = useRef<THREE.MeshStandardMaterial>(null);
   const target = useMemo(() => new THREE.Color(color), [color]);
   const [hover, setHover] = useState(false);
@@ -178,45 +192,54 @@ function VesselMesh({ geometry, head, p, color, dimmed, isSelected, reduced, onS
     mat.current.opacity = dimmed ? 0.18 : 1;
   });
 
-  if (!geometry) return null;
+if (!geometry) return null;
+
+  const center = frame?.center;
+  const push = frame?.push;
 
   return (
-    <mesh
-      geometry={geometry}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(head);
-      }}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHover(true);
-        document.body.style.cursor = "pointer";
-      }}
-      onPointerOut={() => {
-        setHover(false);
-        document.body.style.cursor = "auto";
-      }}
-      scale={hover ? 1.015 : 1}
-    >
-      <meshStandardMaterial
-        ref={mat}
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.4 + 0.6 * p}
-        roughness={0.4}
-        metalness={0.0}
-        transparent
-        opacity={1}
-        depthWrite={!dimmed}
-        side={THREE.DoubleSide}
-      />
-      {isSelected ? (
-        <lineSegments>
-          <edgesGeometry args={[geometry]} />
-          <lineBasicMaterial color="#3D7DFF" transparent opacity={0.5} />
-        </lineSegments>
-      ) : null}
-    </mesh>
+    <group position={push ?? [0, 0, 0]}>
+      <group position={center ? [center.x, center.y, center.z] : [0, 0, 0]} scale={VESSEL_THICKEN}>
+        <mesh
+          geometry={geometry}
+          position={center ? [-center.x, -center.y, -center.z] : [0, 0, 0]}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(head);
+          }}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setHover(true);
+            document.body.style.cursor = "pointer";
+          }}
+          onPointerOut={() => {
+            setHover(false);
+            document.body.style.cursor = "auto";
+          }}
+          scale={hover ? 1.06 : 1}
+          renderOrder={5}
+        >
+          <meshStandardMaterial
+            ref={mat}
+            color={color}
+            emissive={color}
+            emissiveIntensity={0.85 + 0.45 * p}
+            roughness={0.35}
+            metalness={0.0}
+            transparent
+            opacity={1}
+            depthWrite={!dimmed}
+            side={THREE.DoubleSide}
+          />
+          {isSelected ? (
+            <lineSegments>
+              <edgesGeometry args={[geometry]} />
+              <lineBasicMaterial color="#3D7DFF" transparent opacity={0.5} />
+            </lineSegments>
+          ) : null}
+        </mesh>
+      </group>
+    </group>
   );
 }
 
@@ -279,10 +302,12 @@ export function HeartScene(props: SceneProps) {
         onCreated={({ gl }) => gl.setClearColor("#0B0F18", 1)}
       >
         <ambientLight intensity={1.0} />
-        <hemisphereLight args={["#e8efff", "#4a3d30", 0.75]} />
+        <hemisphereLight args={["#e8efff", "#5a4a3c", 0.9]} />
         <directionalLight position={[4, 6, 5]} intensity={1.7} />
         <directionalLight position={[-5, -2, -4]} intensity={0.8} color="#6f9cff" />
         <directionalLight position={[0, -4, 3]} intensity={0.45} color="#ffd9b0" />
+        {/* warm tissue glow inside the chambers so hollows read as anatomy, not voids */}
+        <pointLight position={[0, 0, 0]} intensity={2.2} distance={4.5} decay={1.6} color="#c96a5a" />
         <Suspense fallback={null}>
           <Model
             probs={props.probs}

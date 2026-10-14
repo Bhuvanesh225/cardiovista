@@ -59,10 +59,12 @@ export const VESSEL_BY_HEAD: Record<string, VesselConfig> = Object.fromEntries(
 export const ANATOMY_NODES = ["myocardium", "aorta", "pulmonary_trunk"];
 
 // Camera presets for orientation control.
+// Default is a textbook front-below three-quarter view: apex, ventricular
+// mass and aortic root all read clearly; straight-on anterior foreshortens.
 export const ORIENTATION_PRESETS: Record<string, { theta: number; phi: number; label: string }> = {
-  anterior: { theta: 0, phi: 1.35, label: "Anterior" },
-  lateral: { theta: -1.15, phi: 1.45, label: "Lateral" },
-  inferior: { theta: 0, phi: 2.3, label: "Inferior" },
+  anterior: { theta: -0.38, phi: 1.62, label: "Anterior" },
+  lateral: { theta: -1.15, phi: 1.35, label: "Lateral" },
+  inferior: { theta: -0.2, phi: 2.25, label: "Inferior" },
 };
 
 // Probability -> emissive/lerp colour (mirrors the green/amber/red banding).
