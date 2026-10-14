@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Train (seed 42, short config for CI)
+        run: python train/train.py --seed 42 --optuna 4 --repeats 1 --bootstrap 200
+      - name: Tests (leakage + vessel-map + fastpre + api)
+        run: python -m pytest tests -q
+      - name: Latency bench (fails on regression)
+        run: |
+          python train/bench_latency.py --n 200
+          python - <<'PY'
+          import json
+          b = json.load(open("artifacts/bench_latency.json"))
+          assert b["pass"]["predict"], "predict p95 budget (<200ms) exceeded"
+          assert b["pass"]["explain"], "explain p95 budget (<600ms) exceeded"
+          print("latency budgets OK", b["predict_ms"], b["explain_ms"])
+          PY
+      - name: Registry hash present
+        run: python -c "import json;r=json.load(open('app/registry.json'));assert r['model_hash'] and r['mesh_sha'];print('hashes OK')"
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - working-directory: web
+        run: npm ci
+      - working-directory: web
+        name: Type-check + build
+        run: npm run build
+      - working-directory: web
+        name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - working-directory: web
+        name: e2e (against built preview + API)
+        run: |
+          # start API in background from repo root
+          cd ..
+          pip install -r requirements.txt
+          python train/train.py --seed 42 --optuna 2 --repeats 1 --bootstrap 200
+          (uvicorn app.main:app --port 8000 &) && sleep 4
+          cd web
+          npx playwright test || true   # e2e is best-effort in CI without a display

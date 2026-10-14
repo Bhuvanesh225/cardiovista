@@ -1,0 +1,28 @@
+{
+  "n": 500,
+  "note": "CPU-only, single process; measures the RiskModel adapter (in-process, no HTTP).",
+  "predict_ms": {
+    "p50": 33.7,
+    "p95": 45.5
+  },
+  "explain_ms": {
+    "p50": 7.44,
+    "p95": 11.27,
+    "n": 60
+  },
+  "counterfactual_ms": {
+    "p50": 67.06,
+    "p95": 92.9,
+    "n": 200
+  },
+  "budget": {
+    "predict_p95_ms": 200,
+    "explain_p95_ms": 600,
+    "counterfactual_p95_ms": 300
+  },
+  "pass": {
+    "predict": true,
+    "explain": true,
+    "counterfactual": true
+  }
+}

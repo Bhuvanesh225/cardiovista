@@ -1,0 +1,26 @@
+{
+  "model_hash": "82eb7eb59be50a37f529c00c657c46f15f52b2440eed442652cdaf5b5d7b32ae",
+  "mesh_sha": "47965791ff90e376021b40a8a9d43c7d7d9379c035f724336d51297aa67b653b",
+  "mesh_name": "heart_bp3d.glb",
+  "trained_at": "2026-10-14T13:32:37+00:00",
+  "seed": 42,
+  "n_train_rows": 303,
+  "thresholds": {
+    "cad": 0.6914,
+    "lad": 0.5891,
+    "lcx": 0.4243,
+    "rca": 0.3766
+  },
+  "brier": {
+    "cad": 0.098,
+    "lad": 0.1529,
+    "lcx": 0.1951,
+    "rca": 0.198
+  },
+  "calibration": {
+    "cad": "isotonic",
+    "lad": "isotonic",
+    "lcx": "isotonic",
+    "rca": "isotonic"
+  }
+}

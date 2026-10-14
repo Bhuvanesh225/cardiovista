@@ -1,0 +1,25 @@
+[data] loading UCI Extension of Z-Alizadeh Sani ...
+[data] n=303  features=55  seed=42
+[head:cad] prevalence=0.713  n_pos=216
+[head:lad] prevalence=0.584  n_pos=177
+[head:lcx] prevalence=0.393  n_pos=119
+[head:rca] prevalence=0.376  n_pos=114
+[optuna:cad] best PR-AUC=0.9650 {'n_estimators': 200, 'max_depth': 2, 'learning_rate': 0.024667022575473513, 'subsample': 0.7745760320148825, 'colsample_bytree': 0.9589720002941956, 'reg_lambda': 2.3224995068179255, 'min_child_weight': 1}
+[optuna:lad] best PR-AUC=0.8825 {'n_estimators': 150, 'max_depth': 3, 'learning_rate': 0.020317654244422285, 'subsample': 0.7300012425723539, 'colsample_bytree': 0.9412317442040719, 'reg_lambda': 2.1659808447631472, 'min_child_weight': 2}
+[optuna:lcx] best PR-AUC=0.6378 {'n_estimators': 400, 'max_depth': 3, 'learning_rate': 0.0794709342141814, 'subsample': 0.999700250959243, 'colsample_bytree': 0.6017471684592357, 'reg_lambda': 3.2621460022691595, 'min_child_weight': 1}
+[optuna:rca] best PR-AUC=0.6091 {'n_estimators': 200, 'max_depth': 2, 'learning_rate': 0.02021854521846902, 'subsample': 0.9424198103341492, 'colsample_bytree': 0.8441349276078163, 'reg_lambda': 1.8405619273549394, 'min_child_weight': 5}
+[cv] repeated stratified 5-fold x 5 (=25 fits/head) ...
+[head:cad] AUC=0.911[0.872-0.945] Brier=0.098 ECE=0.032 Youden=0.691 cv=0.904±0.007
+[head:lad] AUC=0.844[0.798-0.887] Brier=0.153 ECE=0.062 Youden=0.589 cv=0.835±0.013
+[head:lcx] AUC=0.764[0.709-0.817] Brier=0.195 ECE=0.077 Youden=0.424 cv=0.741±0.004
+[head:rca] AUC=0.739[0.683-0.794] Brier=0.198 ECE=0.028 Youden=0.377 cv=0.727±0.012
+[served:cad] calibration=isotonic (brier sig=0.1036 iso=0.0928)
+[served:lad] calibration=isotonic (brier sig=0.1531 iso=0.1442)
+[served:lcx] calibration=isotonic (brier sig=0.1989 iso=0.1892)
+[served:rca] calibration=isotonic (brier sig=0.1979 iso=0.1878)
+[done] registry + metrics + presets written
+       model_hash=82eb7eb59be50a37 mesh_sha=47965791ff90e376
+       cad: AUC 0.9115 [0.8721-0.945] Brier 0.098 ECE 0.0315 Youden 0.6914 (isotonic)
+       lad: AUC 0.8443 [0.7979-0.8871] Brier 0.1529 ECE 0.0624 Youden 0.5891 (isotonic)
+       lcx: AUC 0.764 [0.7094-0.8167] Brier 0.1951 ECE 0.0774 Youden 0.4243 (isotonic)
+       rca: AUC 0.7393 [0.6831-0.7939] Brier 0.198 ECE 0.0276 Youden 0.3766 (isotonic)

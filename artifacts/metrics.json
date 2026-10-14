@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-10-14T13:32:37+00:00",
+  "seed": 42,
+  "n_rows": 303,
+  "n_features": 55,
+  "model_hash": "82eb7eb59be50a37f529c00c657c46f15f52b2440eed442652cdaf5b5d7b32ae",
+  "mesh_sha": "47965791ff90e376021b40a8a9d43c7d7d9379c035f724336d51297aa67b653b",
+  "repeats": 5,
+  "heads": {
+    "cad": {
+      "head": "cad",
+      "roc_auc": 0.9115,
+      "roc_ci": [
+        0.8721,
+        0.945
+      ],
+      "pr_auc": 0.9601,
+      "brier": 0.098,
+      "ece": 0.0315,
+      "youden": 0.6914,
+      "sensitivity_at_youden": 0.8796,
+      "confusion_youden": [
+        [
+          72,
+          15
+        ],
+        [
+          26,
+          190
+        ]
+      ],
+      "confusion_0.5": [
+        [
+          66,
+          21
+        ],
+        [
+          15,
+          201
+        ]
+      ],
+      "n_test": 303,
+      "n_pos_test": 216,
+      "cv_auc_mean": 0.9045,
+      "cv_auc_sd": 0.007,
+      "cv_fits": 25,
+      "n_pos": 216,
+      "calibration": "isotonic",
+      "brier_sigmoid": 0.1036,
+      "brier_isotonic": 0.0928
+    },
+    "lad": {
+      "head": "lad",
+      "roc_auc": 0.8443,
+      "roc_ci": [
+        0.7979,
+        0.8871
+      ],
+      "pr_auc": 0.8793,
+      "brier": 0.1529,
+      "ece": 0.0624,
+      "youden": 0.5891,
+      "sensitivity_at_youden": 0.8192,
+      "confusion_youden": [
+        [
+          95,
+          31
+        ],
+        [
+          32,
+          145
+        ]
+      ],
+      "confusion_0.5": [
+        [
+          86,
+          40
+        ],
+        [
+          25,
+          152
+        ]
+      ],
+      "n_test": 303,
+      "n_pos_test": 177,
+      "cv_auc_mean": 0.8351,
+      "cv_auc_sd": 0.0132,
+      "cv_fits": 25,
+      "n_pos": 177,
+      "calibration": "isotonic",
+      "brier_sigmoid": 0.1531,
+      "brier_isotonic": 0.1442
+    },
+    "lcx": {
+      "head": "lcx",
+      "roc_auc": 0.764,
+      "roc_ci": [
+        0.7094,
+        0.8167
+      ],
+      "pr_auc": 0.6348,
+      "brier": 0.1951,
+      "ece": 0.0774,
+      "youden": 0.4243,
+      "sensitivity_at_youden": 0.7143,
+      "confusion_youden": [
+        [
+          136,
+          48
+        ],
+        [
+          34,
+          85
+        ]
+      ],
+      "confusion_0.5": [
+        [
+          155,
+          29
+        ],
+        [
+          56,
+          63
+        ]
+      ],
+      "n_test": 303,
+      "n_pos_test": 119,
+      "cv_auc_mean": 0.7406,
+      "cv_auc_sd": 0.0045,
+      "cv_fits": 25,
+      "n_pos": 119,
+      "calibration": "isotonic",
+      "brier_sigmoid": 0.1989,
+      "brier_isotonic": 0.1892
+    },
+    "rca": {
+      "head": "rca",
+      "roc_auc": 0.7393,
+      "roc_ci": [
+        0.6831,
+        0.7939
+      ],
+      "pr_auc": 0.607,
+      "brier": 0.198,
+      "ece": 0.0276,
+      "youden": 0.3766,
+      "sensitivity_at_youden": 0.7018,
+      "confusion_youden": [
+        [
+          124,
+          65
+        ],
+        [
+          34,
+          80
+        ]
+      ],
+      "confusion_0.5": [
+        [
+          164,
+          25
+        ],
+        [
+          69,
+          45
+        ]
+      ],
+      "n_test": 303,
+      "n_pos_test": 114,
+      "cv_auc_mean": 0.7273,
+      "cv_auc_sd": 0.0122,
+      "cv_fits": 25,
+      "n_pos": 114,
+      "calibration": "isotonic",
+      "brier_sigmoid": 0.1979,
+      "brier_isotonic": 0.1878
+    }
+  }
+}

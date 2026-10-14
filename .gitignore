@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Node
+web/node_modules/
+web/dist/
+web/.vite/
+web/test-results/
+web/playwright-report/
+web/playwright/.cache/
+
+# Playwright browsers (installed separately)
+# ms-playwright/ is in the user home, not the repo
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local run logs (keep committed artefacts, ignore scratch)
+artifacts/*.log
+artifacts/api*.log
+artifacts/web*.log
+artifacts/guard_audit.log
+artifacts/_*.png
+data/*.log
+data/pip-install*.log
+data/_*.py
+
+# Keep these committed (proof bundle):
+!artifacts/metrics.json
+!artifacts/bench_latency.json
+!artifacts/calibration_uncertainty.csv
+!artifacts/*.png
+!artifacts/train_full.log
+
+# Model bundle is small and committed for reproducibility
+!app/models/models.joblib
+!app/models/ood.joblib
