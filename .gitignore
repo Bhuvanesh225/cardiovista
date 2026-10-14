@@ -46,3 +46,5 @@ data/_*.py
 !app/models/ood.joblib
 
 web/tsconfig.tsbuildinfo
+
+artifacts/_*.png
