@@ -44,3 +44,5 @@ data/_*.py
 # Model bundle is small and committed for reproducibility
 !app/models/models.joblib
 !app/models/ood.joblib
+
+web/tsconfig.tsbuildinfo
