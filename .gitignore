@@ -38,6 +38,7 @@ data/_*.py
 logs/
 web/artifacts/
 web/capture*.mjs
+web/debug*.mjs
 
 # Keep these committed (proof bundle):
 !artifacts/metrics.json
